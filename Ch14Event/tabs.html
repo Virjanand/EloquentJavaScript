@@ -1,0 +1,50 @@
+<!Doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>
+      Chapter 14 Tabs Exercise
+    </title>
+  </head>
+  <body>
+
+    <div id="wrapper">
+      <div data-tabname="one">Tab one</div>
+      <div data-tabname="two">Tab two</div>
+      <div data-tabname="three">Tab three</div>
+    </div>
+
+    <script>
+      function switchTab(button) {
+
+      }
+
+      function asTabs(node) {
+        tabs=node.querySelectorAll("[data-tabname]");
+        tabs[1].style.display="none";
+        tabs[2].style.display="none";
+        innerDiv = document.createElement('div');
+        tabs.forEach(function(tab, i) {
+          var button = document.createElement("input");
+          button.setAttribute('type', 'button');
+          button.setAttribute('value', tabs[i].getAttribute("data-tabname"));
+          button.addEventListener("click", function() {selectTab(i); });
+          innerDiv.appendChild(button);
+        });
+        node.insertBefore(innerDiv, node.firstChild);
+
+        function selectTab(n) {
+          tabs.forEach(function(tab,i) {
+            if (i==n) {
+              tab.style.display = "";
+            }
+            else {
+              tab.style.display = "none";
+            }
+          });
+        }
+      }
+      asTabs(document.querySelector("#wrapper"));
+    </script>
+  </body>
+</html>

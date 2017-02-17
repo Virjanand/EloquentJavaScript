@@ -1,0 +1,46 @@
+<!Doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>
+      Chapter 13 DOM
+    </title>
+  </head>
+  <body>
+    <h1>Heading with a <span>span</span> element. </h1>
+    <p>A paragraph with <span>one</span>, <span>two</span>
+      spans.</p>
+
+    <script>
+
+      function byTagName(node, tagName) {
+
+        var found = [];
+        tagName = tagName.toUpperCase();
+
+        function explore(node) {
+          for (var i = 0; i < node.childNodes.length; i++) {
+            var child = node.childNodes[i];
+            if (child.nodeType == document.ELEMENT_NODE) {
+              if (child.nodeName == tagName)
+                found.push(child);
+              explore(child);
+            }
+          }
+        }
+
+        explore(node);
+        return(found);
+
+      }
+
+      console.log(byTagName(document.body, "h1").length);
+
+      console.log(byTagName(document.body, "span").length);
+
+      var para = document.querySelector("p");
+      console.log(byTagName(para, "span").length);
+
+    </script>
+  </body>
+</html>
