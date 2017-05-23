@@ -373,7 +373,7 @@ function trackKeys(codes) {
   return pressed;
 }
 
-
+}
 
 function runGame(plans, Display) {
  function startLevel(n, lives) {

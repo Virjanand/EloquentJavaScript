@@ -17,7 +17,7 @@ function Level(plan) {
   this.actors = [];
 
   for (var y = 0; y < this.height; y++) {
-    var line = plan[y], gridLine = []
+    var line = plan[y], gridLine = [];
     for (var x = 0; x < this.width; x++) {
       var ch = line[x], fieldType = null;
       var Actor = actorChars[ch];
@@ -87,9 +87,6 @@ function Coin(pos) {
 Coin.prototype.type = "coin";
 
 var simpleLevel = new Level(simpleLevelPlan);
-//console.log(simpleLevel.width, "by", simpleLevel.height);
-
-// Drawing the level
 
 function elt(name, className) {
   var elt = document.createElement(name);
@@ -106,7 +103,7 @@ function DOMDisplay(parent, level) {
   this.drawFrame();
 }
 
-var scale = 20; //number of pixels per unit
+var scale = 20;
 
 DOMDisplay.prototype.drawBackground = function() {
   var table = elt("table", "background");
@@ -210,7 +207,7 @@ Level.prototype.animate = function(step, keys) {
     this.actors.forEach(function(actor) {
       actor.act(thisStep, this, keys);
     }, this);
-	step -= thisStep;
+    step -= thisStep;
   }
 };
 
@@ -219,9 +216,9 @@ Lava.prototype.act = function(step, level) {
   if (!level.obstacleAt(newPos, this.size))
     this.pos = newPos;
   else if (this.repeatPos)
-    this.pos = this.repeatPos; // dripping lava
+    this.pos = this.repeatPos;
   else
-    this.speed = this.speed.times(-1); // bouncing lava
+    this.speed = this.speed.times(-1);
 };
 
 var wobbleSpeed = 8, wobbleDist = 0.07;
@@ -259,9 +256,9 @@ Player.prototype.moveY = function(step, level, keys) {
   if (obstacle) {
     level.playerTouched(obstacle);
     if (keys.up && this.speed.y > 0)
-      this.speed.y = -jumpSpeed; // jumping
+      this.speed.y = -jumpSpeed;
     else
-      this.speed.y = 0; // bumped into something
+      this.speed.y = 0;
   } else {
     this.pos = newPos;
   }
@@ -301,6 +298,19 @@ Level.prototype.playerTouched = function(type, actor) {
 
 var arrowCodes = {37: "left", 38: "up", 39: "right"};
 
+function trackKeys(codes) {
+  var pressed = Object.create(null);
+  function handler(event) {
+    if (codes.hasOwnProperty(event.keyCode)) {
+      var down = event.type == "keydown";
+      pressed[codes[event.keyCode]] = down;
+      event.preventDefault();
+    }
+  }
+  addEventListener("keydown", handler);
+  addEventListener("keyup", handler);
+  return pressed;
+}
 
 function runAnimation(frameFunc) {
   var lastTime = null;
@@ -317,85 +327,32 @@ function runAnimation(frameFunc) {
   requestAnimationFrame(frame);
 }
 
+var arrows = trackKeys(arrowCodes);
+
 function runLevel(level, Display, andThen) {
   var display = new Display(document.body, level);
-  var running = "yes";
-  function handleKey(event) {
-    if(event.keyCode == 27) {
-      if (running == "no") {
-        running = "yes";
-        runAnimation(animation);
-      } else if (running == "pausing") {
-        running = "yes";
-      } else if (running == "yes") {
-        running = "pausing";
-      }
-    }
-  }
-  addEventListener("keydown", handleKey);
-  var arrows = trackKeys(arrowCodes);
-  function animation(step) {
-    if (running == "pausing") {
-      running = "no";
-      return false;
-    }
-
+  runAnimation(function(step) {
     level.animate(step, arrows);
     display.drawFrame(step);
     if (level.isFinished()) {
       display.clear();
-      removeEventListener("keydown", handleKey);
-      arrows.unRegister();
       if (andThen)
         andThen(level.status);
       return false;
     }
-  }
-  runAnimation(animation);
+  });
 }
-  
-function trackKeys(codes) {
-  var pressed = Object.create(null);
-  function handler(event) {
-    if (codes.hasOwnProperty(event.keyCode)) {
-      var down = event.type == "keydown";
-      pressed[codes[event.keyCode]] = down;
-      event.preventDefault();
-    }
-  }
-  addEventListener("keydown", handler);
-  addEventListener("keyup", handler);
-
-  pressed.unRegister = function() {
-    removeEventListener("keydown", handler);
-    removeEventListener("keyup", handler);
-  };
-  return pressed;
-}
-
-
 
 function runGame(plans, Display) {
- function startLevel(n, lives) {
-    console.log("Lives: " + lives);
+  function startLevel(n) {
     runLevel(new Level(plans[n]), Display, function(status) {
       if (status == "lost")
-      {
-        lives--;
-        if (lives > 0)
-          startLevel(n, lives);
-        else
-        {
-          console.log("Game Over");
-          lives = 3;
-          startLevel(0, 3);
-        }
-      }
+        startLevel(n);
       else if (n < plans.length - 1)
-        startLevel(n + 1, lives);
+        startLevel(n + 1);
       else
         console.log("You win!");
     });
   }
-  startLevel(0, 3);
+  startLevel(0);
 }
