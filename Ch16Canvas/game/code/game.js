@@ -215,6 +215,20 @@ CanvasDisplay.prototype.updateViewport = function() {
                         this.level.width - view.width);
   if (center.y < view.top + margin)
     view.top = Math.max(center.y - margin, 0);
+  else if (center.y > view.top + view.height - margin)
+    view.top = Math.min(center.y + margin - view.height,
+                        this.level.height - view.height);
+};
+
+CanvasDisplay.prototype.clearDisplay = function() {
+  if (this.level.status == "won")
+    this.cx.fillStyle = "rgb(68, 191, 255)";
+  else if (this.level.status == "lost")
+    this.cx.fillStyle = "rgb(44, 136, 214)";
+  else
+    this.cx.fillStyle = "rgb(52, 166, 251)";
+  this.cx.fillRect(0, 0,
+                  this.canvas.width, this.canvas.height);
 };
 
 Level.prototype.obstacleAt = function(pos, size) {

@@ -203,6 +203,23 @@ CanvasDisplay.prototype.drawFrame = function(step) {
   this.drawActors();
 };
 
+CanvasDisplay.prototype.updateViewport = function() {
+  var view = this.viewport, margin = view.width / 3;
+  var player = this.level.player;
+  var center = player.pos.plus(player.size.times(0.5));
+
+  if (center.x < view.left + margin)
+    view.left = Math.max(center.x - margin, 0);
+  else if (center.x > view.left + view.width - margin)
+    view.left = Math.min(center.x + margin - view.width,
+                        this.level.width - view.width);
+  if (center.y < view.top + margin)
+    view.top = Math.max(center.y - margin, 0);
+  else if (center.y > view.top + view.height - margin)
+    view.top = Math.min(center.y + margin - view.height,
+                        this.level.height - view.height);
+};
+
 Level.prototype.obstacleAt = function(pos, size) {
   var xStart = Math.floor(pos.x);
   var xEnd = Math.ceil(pos.x + size.x);
